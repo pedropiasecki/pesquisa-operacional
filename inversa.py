@@ -63,24 +63,24 @@ def matriz_identidade(n):
                 matriz_id[i][j] = 1
     return matriz_id
 
-## testes
+# testes
 
-# A = np.array([
-#     [3,2,1],
-#     [1,1,1],
-#     [0,2,1]
-# ])
+A = np.array([
+    [3,2,1],
+    [1,1,1],
+    [0,2,1]
+])
 
-# A, b, c, funcao = leitura.ler_sistema("funcoes.txt")
+A, b, c, sinais = leitura.ler_sistema("funcoes.txt")
 
-# print(inversa(A))
-# print("\n")
-# # multiplicação de matrizes: A @ A-¹ deve ser uma matriz identidade
-# print(A @ inversa(A))
-# print("\n")
-# print(funcao)
-# print("\n")
-# print(b)
-# print("\n")
-# print(c)
+print(inversa(A))
+print("\n")
+# multiplicação de matrizes: A @ A-¹ deve ser uma matriz identidade
+print(A @ inversa(A))
+print("\n")
+print("custo = ", c)
+print("\n")
+print("matriz b = ", b)
+print("\n")
+print("sinais = ", sinais)
 

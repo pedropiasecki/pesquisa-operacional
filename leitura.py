@@ -1,22 +1,61 @@
 import numpy as np
-# ler arquivo Ax = b
-# funcao -> 
-# b ->
-# c -> sinais {>, =, >=, <=}
-# A -> matriz A
+import re
+
 def ler_sistema(nome_arquivo):
     with open(nome_arquivo, "r") as f:
-        linhas = f.readlines()
+        linhas = [l.strip() for l in f.readlines() if l.strip()]
 
-    # primeira linha
-    funcao = list(map(float, linhas[0].split()))
+    ## numero de variaveis
+    todas_vars = re.findall(r'x(\d+)', " ".join(linhas))
+    n = max(map(int, todas_vars))
 
-    # b é a ultima linha
-    b = list(map(float, linhas[-1].split()))
+    ## cria o vetor de custo
+    c = np.zeros(n)
+    termos = re.findall(r'([+-]?\s*\d*)x(\d+)', linhas[0])
 
-    # c é a penultima linha
-    c = list(map(str, linhas[-2].split()))
+    # trata os sinais
+    for coef, var in termos:
+        coef = coef.replace(" ", "")
+        if coef in ["", "+"]:
+            coef = 1
+        elif coef == "-":
+            coef = -1
+        else:
+            coef = int(coef)
 
-    A = np.array([list(map(float, linha.split())) for linha in linhas[1:-2]])
+        c[int(var) - 1] += coef
 
-    return A, b, c, funcao
+    ## regras do sistema
+    A = []
+    b = []
+    sinais = []
+
+    # cada linha uma regra
+    for linha in linhas[1:]:
+        # identificar sinal da regra
+        match = re.search(r'(<=|>=|=|<|>)', linha)
+        sinal = match.group(0)
+
+        # separa os lados A, b
+        esquerda, direita = linha.split(sinal)
+
+        linha_A = np.zeros(n)
+        termos = re.findall(r'([+-]?\s*\d*)x(\d+)', esquerda)
+
+        for coef, var in termos:
+            coef = coef.replace(" ", "")
+            if coef in ["", "+"]:
+                coef = 1
+            elif coef == "-":
+                coef = -1
+            else:
+                coef = int(coef)
+
+            linha_A[int(var) - 1] += coef
+
+        A.append(linha_A)
+        b.append(float(direita.strip()))
+        sinais.append(sinal)
+
+    return np.array(A), np.array(b), c, sinais
+
