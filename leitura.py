@@ -1,6 +1,9 @@
 import numpy as np
 import re
 
+# * se nao aparecer x1 entao é 0x1
+# * salvar os indices x1...xn
+
 def ler_sistema(nome_arquivo):
     with open(nome_arquivo, "r") as f:
         linhas = [l.strip() for l in f.readlines() if l.strip()]
@@ -9,6 +12,8 @@ def ler_sistema(nome_arquivo):
 
     """
     ### Verificar se é min ou max
+    1 - min
+    0 - max
     """
     if re.search(rf"\b{re.escape('min')}\b", linhas[0]):
         min_or_max = 1 
@@ -89,15 +94,33 @@ def ler_sistema(nome_arquivo):
         b.append(float(direita.strip()))
         sinais.append(sinal)
 
-    return normalizar(np.array(A), sinais, min_or_max)
+    return normalizar(np.array(A), np.array(b), sinais, min_or_max)
 
 
-def normalizar(A, sinais, min_or_max):
-    A_normalizada = []
+def normalizar(A, b, sinais, min_or_max):
+    n_linhas, n_colunas = A.shape
+
+    A_normalizada = np.zeros((n_linhas, n_colunas+1))
+    b_normalizado = np.zeros(n_linhas)
+
+    for i in range(n_linhas):
+        for j in range(n_colunas):
+            A_normalizada[i][j] = A[i][j]
+        
+        if (sinais[i] in ['>', '>=']):
+            A_normalizada[i][j+1] = -1
+        else: A_normalizada[i][j+1] = 1
+
+    A_normalizada = np.array(A_normalizada)
     
-    print(A)
-    print(sinais)
-    print(min_or_max)
+    if (min_or_max == 0):
+        for i in range(n_linhas):
+            for j in range(n_colunas+1):
+                A_normalizada[i][j] *= -1
+                
+            b_normalizado[i] = b[i]*(-1)
+
+    return A_normalizada, b_normalizado
 
 
 ler_sistema('funcoes.txt')
